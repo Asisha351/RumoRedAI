@@ -4,9 +4,10 @@ const loading = $("loading-state");
 const errorEl = $("error-state");
 const result  = $("result-state");
 
-let lastText = null;
+let lastText      = null;
+let lastVirality  = "Medium";
+let lastScore     = 50;
 
-// ── Virality → numeric map ─────────────────────────────────
 const VIRALITY_MAP = { high: 92, medium: 52, low: 18 };
 
 // ── State helpers ──────────────────────────────────────────
@@ -14,57 +15,63 @@ function show(el, flex = true) {
   [idle, loading, errorEl, result].forEach(s => s.style.display = "none");
   el.style.display = flex ? "flex" : "block";
 }
+function showResult() {
+  [idle, loading, errorEl, result].forEach(s => s.style.display = "none");
+  result.style.display = "flex";
+}
 
-// ── Score color/verdict ────────────────────────────────────
+// ── Colors ────────────────────────────────────────────────
 function scoreColor(s) {
-  if (s >= 70) return "#3ecf8e";
-  if (s >= 40) return "#f5c842";
-  return "#e05050";
+  return s >= 70 ? "#3ecf8e" : s >= 40 ? "#f5c842" : "#e05050";
 }
-
 function scoreVerdict(s) {
-  if (s >= 70) return { label: "Likely Credible",   icon: "ti-circle-check",   bg: "rgba(62,207,142,0.12)", border: "rgba(62,207,142,0.3)", col: "#3ecf8e" };
-  if (s >= 40) return { label: "Uncertain",          icon: "ti-circle-dot",     bg: "rgba(245,200,66,0.12)", border: "rgba(245,200,66,0.3)", col: "#f5c842" };
-  return              { label: "High Risk",           icon: "ti-circle-x",       bg: "rgba(224,80,80,0.12)", border: "rgba(224,80,80,0.3)", col: "#e05050" };
+  if (s >= 70) return { label: "Likely Credible", icon: "ti-circle-check", bg: "rgba(62,207,142,0.12)", border: "rgba(62,207,142,0.3)", col: "#3ecf8e" };
+  if (s >= 40) return { label: "Uncertain",        icon: "ti-circle-dot",   bg: "rgba(245,200,66,0.12)", border: "rgba(245,200,66,0.3)", col: "#f5c842" };
+  return             { label: "High Risk",          icon: "ti-circle-x",     bg: "rgba(224,80,80,0.12)",  border: "rgba(224,80,80,0.3)",  col: "#e05050" };
 }
-
 function riskBadgeClass(str) {
-  const l = str.toLowerCase();
-  if (l === "high")   return "sc-high";
-  if (l === "medium") return "sc-med";
-  return "sc-low";
+  const l = (str || "").toLowerCase();
+  return l === "high" ? "sc-high" : l === "medium" ? "sc-med" : "sc-low";
+}
+function tlDotColor(i, total) {
+  if (i === 0) return "green";
+  if (i === total - 1) return "";   // red = default
+  return "yellow";
+}
+function confidenceStyle(conf) {
+  const l = (conf || "").toLowerCase();
+  return l === "high"
+    ? "background:rgba(62,207,142,0.12);border:1px solid rgba(62,207,142,0.3);color:#3ecf8e;"
+    : l === "medium"
+    ? "background:rgba(245,200,66,0.12);border:1px solid rgba(245,200,66,0.3);color:#f5c842;"
+    : "background:rgba(224,80,80,0.12);border:1px solid rgba(224,80,80,0.3);color:#e05050;";
 }
 
-// ── Gauge ──────────────────────────────────────────────────
+// ── Gauge ─────────────────────────────────────────────────
 function renderGauge(score) {
-  const s      = Math.max(0, Math.min(100, score));
-  const circ   = 326.7;
-  const offset = circ - (s / 100) * circ;
-  const clr    = scoreColor(s);
-  const v      = scoreVerdict(s);
-  const ring   = $("gauge-ring");
+  const s    = Math.max(0, Math.min(100, score));
+  const circ = 301.6;
+  const clr  = scoreColor(s);
+  const v    = scoreVerdict(s);
 
   requestAnimationFrame(() => {
-    ring.style.strokeDashoffset = offset;
-    ring.style.stroke           = clr;
+    $("gauge-ring").style.strokeDashoffset = circ - (s / 100) * circ;
+    $("gauge-ring").style.stroke           = clr;
   });
 
-  $("gauge-score").textContent    = s;
-  $("gauge-score").style.color    = clr;
+  $("gauge-score").textContent = s;
+  $("gauge-score").style.color = clr;
 
   const badge = $("gauge-verdict-badge");
-  badge.style.background          = v.bg;
-  badge.style.border              = `1px solid ${v.border}`;
-  badge.style.color               = v.col;
+  badge.style.cssText = `background:${v.bg};border:1px solid ${v.border};color:${v.col};display:inline-flex;align-items:center;gap:6px;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;width:fit-content;`;
   badge.querySelector("i").className = `ti ${v.icon}`;
   $("gauge-verdict-text").textContent = v.label;
 
-  const desc = s >= 70
+  $("gauge-meta").textContent = s >= 70
     ? "Linguistic patterns suggest this content is reliable."
     : s >= 40
-    ? "Mixed signals detected. Verify with additional sources."
-    : "Strong indicators of manipulative or false content.";
-  $("gauge-meta").textContent = desc;
+    ? "Mixed signals detected. Cross-check with trusted sources."
+    : "Strong indicators of manipulative or fabricated content.";
 
   const fill = $("cred-fill");
   fill.style.background = clr;
@@ -72,22 +79,16 @@ function renderGauge(score) {
   $("cred-pct").textContent = `${s}%`;
 }
 
-// ── Claim Analysis ─────────────────────────────────────────
-function renderClaimAnalysis(triggers) {
-  // Derive a "misinformation type" label from triggers
-  const all = (triggers || []).join(" ").toLowerCase();
-  let mistype = "Unclassified Narrative";
-  if (all.includes("sensational") || all.includes("clickbait") || all.includes("hyperbole"))
-    mistype = "Sensationalist / Clickbait Framing";
-  else if (all.includes("context") || all.includes("fabricat") || all.includes("out-of-context"))
-    mistype = "Out-of-Context Fabrication";
-  else if (all.includes("emotion") || all.includes("fear") || all.includes("anger"))
-    mistype = "Emotional Manipulation";
-  else if (all.includes("conspiracy") || all.includes("hidden") || all.includes("cover"))
-    mistype = "Conspiracy / Suppression Theory";
-  else if (triggers && triggers.length)
-    mistype = "Mixed Linguistic Manipulation";
-
+// ── Claim Analysis ────────────────────────────────────────
+function renderClaimAnalysis(triggers, mistype) {
+  if (!mistype) {
+    const all = (triggers || []).join(" ").toLowerCase();
+    mistype = all.includes("sensational") || all.includes("clickbait") ? "Sensationalist / Clickbait Framing"
+            : all.includes("context")    || all.includes("fabricat")   ? "Out-of-Context Fabrication"
+            : all.includes("emotion")    || all.includes("fear")        ? "Emotional Manipulation"
+            : all.includes("conspiracy") || all.includes("hidden")      ? "Conspiracy / Suppression Theory"
+            : triggers?.length ? "Mixed Linguistic Manipulation" : "Unclassified Narrative";
+  }
   $("mistype-text").textContent = mistype;
 
   const list = $("flags-list");
@@ -97,37 +98,37 @@ function renderClaimAnalysis(triggers) {
     return;
   }
   triggers.forEach(t => {
-    const div = document.createElement("div");
-    div.className = "flag-item";
-    div.innerHTML = `<i class="ti ti-alert-circle" aria-hidden="true"></i><span>${t}</span>`;
-    list.appendChild(div);
+    const d = document.createElement("div");
+    d.className = "flag-item";
+    d.innerHTML = `<i class="ti ti-alert-circle" aria-hidden="true"></i><span>${t}</span>`;
+    list.appendChild(d);
   });
 }
 
-// ── Network Trajectory ─────────────────────────────────────
+// ── Network Metrics ───────────────────────────────────────
 function renderNetworkMetrics(vectors) {
   const grid = $("stat-grid");
   grid.innerHTML = "";
 
-  // Virality from backend
-  const viralRaw  = vectors?.virality  || "Unknown";
+  const viralRaw   = vectors?.virality  || "Unknown";
   const trajectory = vectors?.trajectory || "No trajectory data.";
-  const viralNum  = VIRALITY_MAP[viralRaw.toLowerCase()] ?? 50;
-  const viralClass = riskBadgeClass(viralRaw);
+  const viralNum   = VIRALITY_MAP[viralRaw.toLowerCase()] ?? 50;
+  lastVirality     = viralRaw;
 
-  // Simulated metrics
   const spreadRate = viralNum > 70 ? "Exponential" : viralNum > 40 ? "Linear" : "Contained";
-  const nodeReach  = viralNum > 70 ? `${(Math.random() * 3 + 1.5).toFixed(1)}M` : viralNum > 40 ? `${Math.floor(Math.random() * 500 + 100)}K` : `${Math.floor(Math.random() * 30 + 5)}K`;
+  const nodeReach  = viralNum > 70
+    ? `${(Math.random() * 3 + 1.5).toFixed(1)}M`
+    : viralNum > 40
+    ? `${Math.floor(Math.random() * 500 + 100)}K`
+    : `${Math.floor(Math.random() * 30 + 5)}K`;
   const halfLife   = viralNum > 70 ? "< 6 hrs" : viralNum > 40 ? "12–24 hrs" : "> 48 hrs";
 
-  const cells = [
-    { label: "Virality rate",    value: viralRaw,    badge: viralClass },
-    { label: "Spread pattern",   value: spreadRate,  badge: viralNum > 70 ? "sc-high" : viralNum > 40 ? "sc-med" : "sc-low" },
-    { label: "Est. node reach",  value: nodeReach,   badge: null },
-    { label: "Content half-life", value: halfLife,   badge: null },
-  ];
-
-  cells.forEach(c => {
+  [
+    { label: "Virality rate",     value: viralRaw,    badge: riskBadgeClass(viralRaw) },
+    { label: "Spread pattern",    value: spreadRate,  badge: viralNum > 70 ? "sc-high" : viralNum > 40 ? "sc-med" : "sc-low" },
+    { label: "Est. node reach",   value: nodeReach,   badge: null },
+    { label: "Content half-life", value: halfLife,    badge: null },
+  ].forEach(c => {
     const cell = document.createElement("div");
     cell.className = "stat-cell";
     cell.innerHTML = `
@@ -138,67 +139,221 @@ function renderNetworkMetrics(vectors) {
     grid.appendChild(cell);
   });
 
-  // Quarantine status
+  $("trajectory-note").innerHTML = `<i class="ti ti-chart-line" style="font-size:13px;vertical-align:-2px;margin-right:5px;" aria-hidden="true"></i>${trajectory}`;
+
   const qStatus = viralNum > 70
     ? "Active — Mitigation Script Injected"
-    : viralNum > 40
-    ? "Monitoring — Partial Containment"
-    : "Clear — No Quarantine Required";
+    : viralNum > 40 ? "Monitoring — Partial Containment" : "Clear — No Quarantine Required";
   $("quarantine-text").textContent = `Simulated Quarantine: ${qStatus}`;
-
-  // Trajectory as tooltip-like sub-text below the grid
-  let traj = document.getElementById("trajectory-note");
-  if (!traj) {
-    traj = document.createElement("div");
-    traj.id = "trajectory-note";
-    traj.style.cssText = "font-size:11px;color:var(--muted);line-height:1.6;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);";
-    $("stat-grid").parentElement.insertBefore(traj, $("quarantine-text").parentElement);
-  }
-  traj.innerHTML = `<i class="ti ti-chart-line" style="font-size:13px;vertical-align:-2px;margin-right:5px;" aria-hidden="true"></i>${trajectory}`;
 }
 
-// ── Counter Signal ─────────────────────────────────────────
+// ── Counter signal ────────────────────────────────────────
 function renderCounterSignal(text) {
   $("counter-text").textContent = text || "No counter-signal available.";
 }
 
-// ── Main render ────────────────────────────────────────────
-function renderResult(data) {
-  const { trust_score, linguistic_triggers, risk_vectors, counter_signal } = data;
-  renderGauge(trust_score ?? 0);
-  renderClaimAnalysis(linguistic_triggers);
-  renderNetworkMetrics(risk_vectors);
-  renderCounterSignal(counter_signal);
-  show(result, false);
-  result.style.display = "flex";
+// ── Cache badge ───────────────────────────────────────────
+function renderCacheBadge(cached) {
+  const b = $("cache-badge");
+  if (cached) {
+    b.className = "cache-badge cache-hit";
+    b.textContent = "⚡ Cached";
+  } else {
+    b.className = "cache-badge cache-miss";
+    b.textContent = "New scan";
+  }
 }
 
-// ── Copy button ────────────────────────────────────────────
-$("copy-btn").addEventListener("click", async () => {
-  const text = $("counter-text").textContent;
+// ── Main render ───────────────────────────────────────────
+function renderResult(data) {
+  lastScore = data.trust_score ?? 0;
+  renderGauge(lastScore);
+  renderClaimAnalysis(data.linguistic_triggers, data.misinformation_type);
+  renderNetworkMetrics(data.risk_vectors);
+  renderCounterSignal(data.counter_signal);
+  renderCacheBadge(data._cached);
+
+  // Hide all secondary sections when new result loads
+  ["spread-section","counter-narrative-section","provenance-section"].forEach(id => {
+    $(id).style.display = "none";
+  });
+
+  showResult();
+}
+
+// ── Helpers: mini section toggle ──────────────────────────
+function showSection(sectionId, loadingId, contentId) {
+  const sec = $(sectionId);
+  sec.style.display = "block";
+  $(loadingId).style.display = "flex";
+  $(contentId).style.display = "none";
+  sec.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+function revealContent(loadingId, contentId) {
+  $(loadingId).style.display = "none";
+  $(contentId).style.display = "block";
+}
+
+// ── Spread simulation ──────────────────────────────────────
+$("spread-btn").addEventListener("click", async () => {
+  if (!lastText) return;
+  showSection("spread-section", "spread-loading", "spread-content");
+
   try {
-    await navigator.clipboard.writeText(text);
-    const btn = $("copy-btn");
-    btn.classList.add("copied");
-    $("copy-icon").className = "ti ti-check";
-    $("copy-label").textContent = "Copied!";
-    setTimeout(() => {
-      btn.classList.remove("copied");
-      $("copy-icon").className = "ti ti-copy";
-      $("copy-label").textContent = "Copy Counter-Signal";
-    }, 2200);
-  } catch {
-    alert("Clipboard access denied. Please copy manually.");
+    const res = await fetch("http://127.0.0.1:8000/simulate-spread", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: lastText, trust_score: lastScore, virality: lastVirality }),
+    });
+    const data = await res.json();
+
+    $("spread-peak").textContent   = data.peak_reach ? data.peak_reach.toLocaleString() : "—";
+    $("spread-window").textContent = data.containment_window || "—";
+
+    // Timeline
+    const tl = $("spread-timeline");
+    tl.innerHTML = "";
+    (data.phases || []).forEach((p, i, arr) => {
+      const item = document.createElement("div");
+      item.className = "tl-item";
+      const dotClass = i === 0 ? "green" : i === arr.length - 1 ? "" : "yellow";
+      item.innerHTML = `
+        <div class="tl-dot ${dotClass}"></div>
+        <div class="tl-platform">${p.label}<span class="tl-time">${p.time || ""}</span></div>
+        <div class="tl-note">${p.note || ""}</div>
+        ${p.reach ? `<div class="tl-reach">${p.reach.toLocaleString()} reach</div>` : ""}
+      `;
+      tl.appendChild(item);
+    });
+
+    // Super spreaders
+    const chips = $("spreader-chips");
+    chips.innerHTML = "";
+    (data.super_spreaders || []).forEach(s => {
+      const c = document.createElement("span");
+      c.className = "spreader-chip";
+      c.textContent = s;
+      chips.appendChild(c);
+    });
+
+    revealContent("spread-loading", "spread-content");
+  } catch (e) {
+    $("spread-loading").innerHTML = `<span style="color:var(--muted);font-size:12px;">Error: ${e.message}</span>`;
   }
 });
 
-// ── Retry button ───────────────────────────────────────────
+// ── Counter Narrative ──────────────────────────────────────
+$("counter-narrative-btn").addEventListener("click", async () => {
+  if (!lastText) return;
+  showSection("counter-narrative-section", "cn-loading", "cn-content");
+
+  try {
+    const res  = await fetch("http://127.0.0.1:8000/counter-narrative", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: lastText }),
+    });
+    const data = await res.json();
+
+    $("cn-reply").textContent    = data.reply_template    || "—";
+    $("cn-extended").textContent = data.extended_rebuttal || "—";
+
+    const srcList = $("cn-sources");
+    srcList.innerHTML = "";
+    (data.suggested_sources || []).forEach(s => {
+      const row = document.createElement("div");
+      row.className = "source-item";
+      row.innerHTML = `<i class="ti ti-link" aria-hidden="true"></i><a href="${s.url}" target="_blank" rel="noopener">${s.name} ↗</a>`;
+      srcList.appendChild(row);
+    });
+
+    const hRow = $("cn-hashtags");
+    hRow.innerHTML = "";
+    (data.hashtags || []).forEach(h => {
+      const tag = document.createElement("span");
+      tag.className = "hashtag";
+      tag.textContent = h;
+      hRow.appendChild(tag);
+    });
+
+    revealContent("cn-loading", "cn-content");
+  } catch (e) {
+    $("cn-loading").innerHTML = `<span style="color:var(--muted);font-size:12px;">Error: ${e.message}</span>`;
+  }
+});
+
+// Copy reply template
+$("copy-reply-btn").addEventListener("click", async () => {
+  const text = $("cn-reply").textContent;
+  await navigator.clipboard.writeText(text).catch(() => {});
+  $("copy-reply-btn").classList.add("copied");
+  $("copy-reply-btn").innerHTML = `<i class="ti ti-check" aria-hidden="true"></i>Copied!`;
+  setTimeout(() => {
+    $("copy-reply-btn").classList.remove("copied");
+    $("copy-reply-btn").innerHTML = `<i class="ti ti-copy" aria-hidden="true"></i>Copy Reply Template`;
+  }, 2200);
+});
+
+// ── Provenance ─────────────────────────────────────────────
+$("provenance-btn").addEventListener("click", async () => {
+  if (!lastText) return;
+  showSection("provenance-section", "prov-loading", "prov-content");
+
+  try {
+    const res  = await fetch("http://127.0.0.1:8000/provenance", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: lastText }),
+    });
+    const data = await res.json();
+
+    $("prov-origin").textContent = data.origin_platform || "Unknown";
+
+    const conf = $("prov-conf");
+    conf.style.cssText = confidenceStyle(data.confidence) + "border-radius:4px;padding:2px 8px;font-size:10px;font-weight:600;display:inline-flex;align-items:center;gap:4px;margin-bottom:12px;";
+    conf.innerHTML = `<i class="ti ti-radar" style="font-size:12px;" aria-hidden="true"></i>Confidence: ${data.confidence || "—"}`;
+
+    const tl = $("prov-timeline");
+    tl.innerHTML = "";
+    (data.chain || []).forEach((item, i, arr) => {
+      const d = document.createElement("div");
+      d.className = "tl-item";
+      const dotClass = i === 0 ? "green" : i === arr.length - 1 ? "" : "yellow";
+      d.innerHTML = `
+        <div class="tl-dot ${dotClass}"></div>
+        <div class="tl-platform">${item.platform}<span class="tl-time"> · ${item.time_ago}</span></div>
+        <div class="tl-note">${item.event}</div>
+      `;
+      tl.appendChild(d);
+    });
+
+    $("prov-note").textContent = data.note || "";
+    revealContent("prov-loading", "prov-content");
+  } catch (e) {
+    $("prov-loading").innerHTML = `<span style="color:var(--muted);font-size:12px;">Error: ${e.message}</span>`;
+  }
+});
+
+// ── Copy counter-signal ────────────────────────────────────
+$("copy-btn").addEventListener("click", async () => {
+  await navigator.clipboard.writeText($("counter-text").textContent).catch(() => {});
+  $("copy-btn").classList.add("copied");
+  $("copy-icon").className = "ti ti-check";
+  $("copy-label").textContent = "Copied!";
+  setTimeout(() => {
+    $("copy-btn").classList.remove("copied");
+    $("copy-icon").className = "ti ti-copy";
+    $("copy-label").textContent = "Copy Counter-Signal";
+  }, 2200);
+});
+
+// ── Retry ──────────────────────────────────────────────────
 $("retry-btn").addEventListener("click", () => {
   if (lastText) runVerification(lastText);
   else show(idle);
 });
 
-// ── Verification flow ──────────────────────────────────────
+// ── Verification ───────────────────────────────────────────
 async function runVerification(text) {
   show(loading);
   $("query-pill").style.display = "flex";
@@ -210,17 +365,15 @@ async function runVerification(text) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text }),
     });
-    if (!res.ok) throw new Error(`Server error: ${res.status}`);
-    const json = await res.json();
-    renderResult(json);
+    if (!res.ok) throw new Error(`Server error ${res.status}`);
+    renderResult(await res.json());
   } catch (err) {
-    $("error-msg").textContent =
-      `Backend unreachable.\n\n${err.message}\n\nMake sure the FastAPI server is running on http://127.0.0.1:8000`;
+    $("error-msg").textContent = `Backend unreachable.\n\n${err.message}\n\nMake sure FastAPI is running on http://127.0.0.1:8000`;
     show(errorEl);
   }
 }
 
-// ── Poll for new requests ──────────────────────────────────
+// ── Poll ───────────────────────────────────────────────────
 async function checkPending() {
   const data    = await chrome.storage.session.get("pendingVerification");
   const pending = data?.pendingVerification;

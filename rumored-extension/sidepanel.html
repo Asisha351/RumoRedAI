@@ -7,227 +7,198 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
   <style>
     :root {
-      --bg: #0c0e18;
-      --surface: #13161f;
-      --surface2: #1c2030;
-      --surface3: #222740;
-      --border: rgba(255,255,255,0.07);
-      --border2: rgba(255,255,255,0.12);
-      --accent: #e03c3c;
-      --accent2: #ff6b6b;
-      --text: #dde1f5;
-      --muted: #6b728f;
-      --green: #3ecf8e;
-      --yellow: #f5c842;
-      --red: #e03c3c;
-      --sidebar-width: 420px;
+      --bg: #0c0e18; --surface: #13161f; --surface2: #1c2030; --surface3: #222740;
+      --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+      --accent: #e03c3c; --accent2: #ff6b6b;
+      --text: #dde1f5; --muted: #6b728f;
+      --green: #3ecf8e; --yellow: #f5c842; --red: #e05050;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { width: var(--sidebar-width); min-height: 100vh; background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; }
+    html, body { width: 100%; min-height: 100vh; background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; }
 
     /* ── Header ── */
-    header {
-      display: flex; align-items: center; gap: 10px;
-      padding: 14px 18px;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border2);
-      position: sticky; top: 0; z-index: 10;
-    }
-    .logo { font-size: 18px; font-weight: 800; letter-spacing: 1.5px; color: var(--accent2); }
+    header { display: flex; align-items: center; gap: 10px; padding: 13px 16px; background: var(--surface); border-bottom: 1px solid var(--border2); position: sticky; top: 0; z-index: 10; }
+    .logo { font-size: 17px; font-weight: 800; letter-spacing: 1.5px; color: var(--accent2); }
     .logo span { color: var(--text); }
-    .badge-live {
-      margin-left: auto;
-      display: flex; align-items: center; gap: 5px;
-      background: rgba(60,207,142,0.1); border: 1px solid rgba(60,207,142,0.25);
-      color: var(--green); border-radius: 20px; padding: 3px 9px; font-size: 10px; font-weight: 600; letter-spacing: 0.5px;
-    }
+    .badge-live { margin-left: auto; display: flex; align-items: center; gap: 5px; background: rgba(62,207,142,0.1); border: 1px solid rgba(62,207,142,0.25); color: var(--green); border-radius: 20px; padding: 3px 9px; font-size: 10px; font-weight: 600; letter-spacing: 0.5px; }
     .dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: pulse 1.6s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+    @keyframes spin { to{transform:rotate(360deg)} }
 
-    main { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    main { padding: 14px; display: flex; flex-direction: column; gap: 11px; }
 
     /* ── Idle ── */
-    #idle-state {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 14px; min-height: 80vh; text-align: center; color: var(--muted);
-    }
-    .idle-icon-wrap {
-      width: 72px; height: 72px; border-radius: 50%;
-      background: var(--surface2); border: 1px solid var(--border2);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .idle-icon-wrap i { font-size: 32px; color: var(--muted); }
-    #idle-state h3 { font-size: 15px; font-weight: 600; color: var(--text); }
+    #idle-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; min-height: 80vh; text-align: center; color: var(--muted); }
+    .idle-icon-wrap { width: 68px; height: 68px; border-radius: 50%; background: var(--surface2); border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; }
+    .idle-icon-wrap i { font-size: 30px; color: var(--muted); }
+    #idle-state h3 { font-size: 14px; font-weight: 600; color: var(--text); }
     #idle-state p { font-size: 12px; line-height: 1.7; max-width: 260px; }
 
-    /* ── Spinner ── */
-    #loading-state {
-      display: none; flex-direction: column; align-items: center; justify-content: center;
-      gap: 20px; min-height: 80vh;
-    }
-    .spinner-ring {
-      width: 56px; height: 56px; border-radius: 50%;
-      border: 3px solid var(--surface3);
-      border-top-color: var(--accent2);
-      animation: spin 0.75s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-label { font-size: 12px; color: var(--muted); letter-spacing: 0.5px; }
+    /* ── Loading ── */
+    #loading-state { display: none; flex-direction: column; align-items: center; justify-content: center; gap: 18px; min-height: 80vh; }
+    .spinner-ring { width: 52px; height: 52px; border-radius: 50%; border: 3px solid var(--surface3); border-top-color: var(--accent2); animation: spin 0.75s linear infinite; }
+    .loading-label { font-size: 12px; color: var(--muted); }
     .loading-sub { font-size: 11px; color: var(--muted); opacity: 0.6; }
 
     /* ── Error ── */
-    #error-state {
-      display: none; flex-direction: column; align-items: center; justify-content: center;
-      gap: 14px; min-height: 80vh; text-align: center;
-    }
-    .err-icon { width: 60px; height: 60px; border-radius: 50%; background: rgba(224,60,60,0.12); border: 1px solid rgba(224,60,60,0.25); display: flex; align-items: center; justify-content: center; }
-    .err-icon i { font-size: 28px; color: var(--accent2); }
+    #error-state { display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; min-height: 80vh; text-align: center; }
+    .err-icon { width: 58px; height: 58px; border-radius: 50%; background: rgba(224,60,60,0.12); border: 1px solid rgba(224,60,60,0.25); display: flex; align-items: center; justify-content: center; }
+    .err-icon i { font-size: 26px; color: var(--accent2); }
     #error-msg { font-size: 12px; color: var(--muted); max-width: 260px; line-height: 1.7; white-space: pre-line; }
-    .retry-btn { padding: 8px 20px; border-radius: 8px; border: 1px solid var(--accent); background: transparent; color: var(--accent2); font-size: 12px; font-weight: 600; cursor: pointer; }
-    .retry-btn:hover { background: rgba(224,60,60,0.1); }
+    .retry-btn { padding: 8px 18px; border-radius: 8px; border: 1px solid var(--accent); background: transparent; color: var(--accent2); font-size: 12px; font-weight: 600; cursor: pointer; }
 
     /* ── Results ── */
-    #result-state { display: none; flex-direction: column; gap: 12px; }
+    #result-state { display: none; flex-direction: column; gap: 11px; }
 
     /* ── Claim pill ── */
-    .claim-pill {
-      display: flex; gap: 10px; align-items: flex-start;
-      background: var(--surface2); border: 1px solid var(--border2);
-      border-left: 3px solid var(--accent);
-      border-radius: 8px; padding: 10px 13px;
-    }
-    .claim-pill .cl-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--accent2); white-space: nowrap; margin-top: 2px; }
+    .claim-pill { display: flex; gap: 10px; align-items: flex-start; background: var(--surface2); border: 1px solid var(--border2); border-left: 3px solid var(--accent); border-radius: 8px; padding: 9px 12px; }
+    .cl-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--accent2); white-space: nowrap; margin-top: 2px; }
     #query-text { font-size: 12px; color: var(--text); line-height: 1.6; font-style: italic; word-break: break-word; }
 
-    /* ── Section card ── */
-    .card {
-      background: var(--surface); border: 1px solid var(--border2);
-      border-radius: 12px; padding: 15px;
-    }
-    .card-title {
-      font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-      color: var(--muted); margin-bottom: 14px; display: flex; align-items: center; gap: 6px;
-    }
+    /* cache badge */
+    .cache-badge { margin-left: auto; flex-shrink: 0; font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .cache-hit { background: rgba(62,207,142,0.12); color: var(--green); border: 1px solid rgba(62,207,142,0.25); }
+    .cache-miss { background: rgba(255,107,107,0.12); color: var(--accent2); border: 1px solid rgba(255,107,107,0.25); }
+
+    /* ── Card ── */
+    .card { background: var(--surface); border: 1px solid var(--border2); border-radius: 12px; padding: 14px; }
+    .card-title { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 13px; display: flex; align-items: center; gap: 6px; }
     .card-title i { font-size: 14px; }
 
     /* ── Radial gauge ── */
-    .gauge-outer { display: flex; align-items: center; gap: 20px; }
-    .gauge-svg-wrap { position: relative; width: 130px; height: 130px; flex-shrink: 0; }
-    .gauge-svg-wrap svg { width: 130px; height: 130px; }
-    .gauge-center-text {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-      text-align: center; pointer-events: none;
-    }
-    .gauge-score-num { font-size: 28px; font-weight: 800; line-height: 1; }
-    .gauge-score-pct { font-size: 11px; color: var(--muted); }
-    .gauge-right { flex: 1; display: flex; flex-direction: column; gap: 10px; }
-    .gauge-verdict-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      border-radius: 6px; padding: 5px 11px; font-size: 11px; font-weight: 700; width: fit-content;
-    }
+    .gauge-outer { display: flex; align-items: center; gap: 16px; }
+    .gauge-svg-wrap { position: relative; width: 120px; height: 120px; flex-shrink: 0; }
+    .gauge-svg-wrap svg { width: 120px; height: 120px; }
+    .gauge-center-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; pointer-events: none; }
+    .gauge-score-num { font-size: 26px; font-weight: 800; line-height: 1; }
+    .gauge-score-pct { font-size: 10px; color: var(--muted); }
+    .gauge-right { flex: 1; display: flex; flex-direction: column; gap: 9px; }
+    .gauge-verdict-badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 6px; padding: 5px 10px; font-size: 11px; font-weight: 700; width: fit-content; }
     .gauge-meta { font-size: 11px; color: var(--muted); line-height: 1.6; }
-
-    /* credibility bar */
-    .cred-row { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+    .cred-row { display: flex; align-items: center; gap: 8px; }
     .cred-bar-bg { flex: 1; height: 5px; background: var(--surface3); border-radius: 99px; overflow: hidden; }
     .cred-bar-fill { height: 100%; border-radius: 99px; transition: width 0.9s cubic-bezier(.4,0,.2,1); }
 
-    /* ── Mis-type chip ── */
-    .mistype-chip {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(245,200,66,0.1); border: 1px solid rgba(245,200,66,0.25);
-      color: var(--yellow); border-radius: 6px; padding: 6px 12px;
-      font-size: 11px; font-weight: 600; word-break: break-word;
-    }
+    /* ── Mistype chip ── */
+    .mistype-chip { display: inline-flex; align-items: center; gap: 6px; background: rgba(245,200,66,0.1); border: 1px solid rgba(245,200,66,0.25); color: var(--yellow); border-radius: 6px; padding: 6px 11px; font-size: 11px; font-weight: 600; word-break: break-word; }
 
-    /* ── Flags list ── */
-    .flag-item {
-      display: flex; align-items: flex-start; gap: 8px;
-      padding: 7px 0; border-bottom: 1px solid var(--border);
-      font-size: 12px; line-height: 1.5; color: var(--text);
-    }
+    /* ── Flag list ── */
+    .flag-item { display: flex; align-items: flex-start; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 12px; line-height: 1.5; color: var(--text); }
     .flag-item:last-child { border-bottom: none; }
     .flag-item i { color: var(--accent2); font-size: 14px; flex-shrink: 0; margin-top: 1px; }
 
     /* ── Stat grid ── */
     .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .stat-cell {
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 9px; padding: 11px 13px;
-    }
-    .stat-cell .sc-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 5px; }
-    .stat-cell .sc-value { font-size: 14px; font-weight: 700; }
-    .stat-cell .sc-badge {
-      display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 4px; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px;
-    }
+    .stat-cell { background: var(--surface2); border: 1px solid var(--border); border-radius: 9px; padding: 10px 12px; }
+    .sc-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+    .sc-value { font-size: 13px; font-weight: 700; }
+    .sc-badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 4px; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
     .sc-high { color: #ff8080; background: rgba(224,60,60,0.15); }
-    .sc-med  { color: #f5c842; background: rgba(245,200,66,0.12); }
+    .sc-med  { color: var(--yellow); background: rgba(245,200,66,0.12); }
     .sc-low  { color: var(--green); background: rgba(62,207,142,0.1); }
-
-    /* quarantine status */
-    .quarantine-row {
-      display: flex; align-items: center; gap: 8px;
-      background: rgba(62,207,142,0.07); border: 1px solid rgba(62,207,142,0.2);
-      border-radius: 8px; padding: 9px 12px; margin-top: 2px;
-    }
+    .quarantine-row { display: flex; align-items: center; gap: 8px; background: rgba(62,207,142,0.07); border: 1px solid rgba(62,207,142,0.2); border-radius: 8px; padding: 9px 12px; margin-top: 8px; }
     .q-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 1.4s infinite; flex-shrink: 0; }
     .q-text { font-size: 11px; color: var(--green); font-weight: 600; }
 
-    /* ── Counter signal ── */
-    .counter-body { font-size: 13px; line-height: 1.7; color: var(--text); margin-bottom: 12px; }
-    .copy-btn {
-      display: flex; align-items: center; justify-content: center; gap: 7px;
-      width: 100%; padding: 11px; border-radius: 9px; border: none; cursor: pointer;
-      font-size: 13px; font-weight: 700;
-      background: linear-gradient(135deg, #c92c2c, #e05050);
-      color: #fff; transition: opacity 0.2s, transform 0.15s; letter-spacing: 0.3px;
+    /* ── Action buttons row ── */
+    .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .action-btn {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 10px; border-radius: 9px; border: 1px solid var(--border2);
+      background: var(--surface2); color: var(--text); font-size: 11px; font-weight: 600;
+      cursor: pointer; transition: background 0.18s, border-color 0.18s;
     }
+    .action-btn:hover { background: var(--surface3); border-color: var(--border2); }
+    .action-btn i { font-size: 15px; }
+    .action-btn.spread-btn { border-color: rgba(245,200,66,0.3); color: var(--yellow); }
+    .action-btn.spread-btn:hover { background: rgba(245,200,66,0.08); }
+    .action-btn.counter-btn { border-color: rgba(62,207,142,0.3); color: var(--green); }
+    .action-btn.counter-btn:hover { background: rgba(62,207,142,0.08); }
+
+    /* ── Spread simulation ── */
+    #spread-section, #counter-narrative-section, #provenance-section { display: none; }
+    .mini-loading { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; padding: 6px 0; }
+    .mini-spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--surface3); border-top-color: var(--accent2); animation: spin 0.7s linear infinite; flex-shrink: 0; }
+
+    /* timeline */
+    .timeline { position: relative; padding-left: 20px; }
+    .timeline::before { content: ''; position: absolute; left: 6px; top: 4px; bottom: 4px; width: 1px; background: var(--border2); }
+    .tl-item { position: relative; margin-bottom: 12px; }
+    .tl-item:last-child { margin-bottom: 0; }
+    .tl-dot { position: absolute; left: -18px; top: 4px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent2); border: 2px solid var(--bg); }
+    .tl-dot.green { background: var(--green); }
+    .tl-dot.yellow { background: var(--yellow); }
+    .tl-platform { font-size: 11px; font-weight: 700; color: var(--text); }
+    .tl-time { font-size: 10px; color: var(--muted); margin-left: 6px; }
+    .tl-note { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
+    .tl-reach { display: inline-block; font-size: 10px; font-weight: 700; background: var(--surface3); border-radius: 4px; padding: 1px 6px; margin-top: 3px; color: var(--accent2); }
+
+    /* super spreaders */
+    .spreader-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .spreader-chip { font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; background: rgba(255,107,107,0.12); border: 1px solid rgba(255,107,107,0.25); color: var(--accent2); }
+
+    /* ── Counter narrative ── */
+    .reply-box { background: var(--surface2); border: 1px solid var(--border2); border-radius: 9px; padding: 12px; margin-bottom: 10px; }
+    .reply-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+    .reply-text { font-size: 12px; color: var(--text); line-height: 1.6; }
+    .source-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+    .source-item { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--muted); }
+    .source-item i { color: var(--green); font-size: 13px; flex-shrink: 0; }
+    .source-item a { color: var(--green); text-decoration: none; word-break: break-all; }
+    .source-item a:hover { text-decoration: underline; }
+    .hashtag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .hashtag { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 20px; background: rgba(62,207,142,0.1); border: 1px solid rgba(62,207,142,0.2); color: var(--green); }
+
+    /* ── Copy / action buttons ── */
+    .copy-btn { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; padding: 10px; border-radius: 9px; border: none; cursor: pointer; font-size: 12px; font-weight: 700; background: linear-gradient(135deg,#c92c2c,#e05050); color: #fff; transition: opacity 0.2s,transform 0.15s; }
     .copy-btn:hover { opacity: 0.88; transform: translateY(-1px); }
     .copy-btn:active { transform: scale(0.98); }
-    .copy-btn.copied { background: linear-gradient(135deg, #1e6e4d, #3ecf8e); }
-    .copy-btn i { font-size: 15px; }
+    .copy-btn.copied { background: linear-gradient(135deg,#1e6e4d,#3ecf8e); }
+    .copy-btn i { font-size: 14px; }
+
+    /* ── Counter signal (original) ── */
+    .counter-body { font-size: 13px; line-height: 1.7; color: var(--text); margin-bottom: 11px; }
+
+    /* ── Provenance ── */
+    .prov-conf { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px; margin-bottom: 12px; }
+    .prov-note { font-size: 10px; color: var(--muted); font-style: italic; line-height: 1.5; margin-top: 10px; }
+    .dot-colors { high: var(--red); medium: var(--yellow); low: var(--green); }
   </style>
 </head>
 <body>
 
 <header>
   <div class="logo">Rumo<span>RED</span></div>
-  <div class="badge-live">
-    <div class="dot"></div>
-    COMMAND DASHBOARD
-  </div>
+  <div class="badge-live"><div class="dot"></div>COMMAND DASHBOARD</div>
 </header>
 
 <main>
 
-  <!-- Idle -->
   <div id="idle-state">
     <div class="idle-icon-wrap"><i class="ti ti-radar" aria-hidden="true"></i></div>
     <h3>No claim loaded</h3>
-    <p>Highlight text on any page, right-click, and choose <strong>Verify with RumoRED</strong> to begin analysis.</p>
+    <p>Highlight text on any page, right-click, and select <strong>Verify with RumoRED</strong>.</p>
   </div>
 
-  <!-- Loading -->
   <div id="loading-state">
     <div class="spinner-ring"></div>
     <div class="loading-label">Scanning claim…</div>
     <div class="loading-sub">Linguistic analysis in progress</div>
   </div>
 
-  <!-- Error -->
   <div id="error-state">
     <div class="err-icon"><i class="ti ti-wifi-off" aria-hidden="true"></i></div>
     <p id="error-msg"></p>
     <button class="retry-btn" id="retry-btn"><i class="ti ti-refresh" aria-hidden="true"></i> Retry</button>
   </div>
 
-  <!-- Results -->
   <div id="result-state">
 
     <!-- Claim pill -->
     <div class="claim-pill" id="query-pill" style="display:none">
       <span class="cl-label">Claim</span>
       <span id="query-text"></span>
+      <span class="cache-badge" id="cache-badge"></span>
     </div>
 
     <!-- Trust Gauge -->
@@ -235,12 +206,12 @@
       <div class="card-title"><i class="ti ti-gauge" aria-hidden="true"></i>Trust Meter</div>
       <div class="gauge-outer">
         <div class="gauge-svg-wrap">
-          <svg viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <circle cx="65" cy="65" r="52" fill="none" stroke="#1c2030" stroke-width="12"/>
-            <circle id="gauge-ring" cx="65" cy="65" r="52" fill="none" stroke="#3ecf8e" stroke-width="12"
-              stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7"
-              transform="rotate(-90 65 65)"
-              style="transition: stroke-dashoffset 1s cubic-bezier(.4,0,.2,1), stroke 0.6s ease;"/>
+          <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="60" cy="60" r="48" fill="none" stroke="#1c2030" stroke-width="11"/>
+            <circle id="gauge-ring" cx="60" cy="60" r="48" fill="none" stroke="#3ecf8e" stroke-width="11"
+              stroke-linecap="round" stroke-dasharray="301.6" stroke-dashoffset="301.6"
+              transform="rotate(-90 60 60)"
+              style="transition:stroke-dashoffset 1s cubic-bezier(.4,0,.2,1),stroke 0.6s ease;"/>
           </svg>
           <div class="gauge-center-text">
             <div class="gauge-score-num" id="gauge-score">—</div>
@@ -261,7 +232,7 @@
       </div>
     </div>
 
-    <!-- Credibility Score + Misinfo Type -->
+    <!-- Claim Analysis -->
     <div class="card">
       <div class="card-title"><i class="ti ti-alert-triangle" aria-hidden="true"></i>Claim Analysis</div>
       <div style="margin-bottom:12px;">
@@ -274,19 +245,90 @@
       </div>
     </div>
 
-    <!-- Network Trajectory -->
+    <!-- Network Metrics -->
     <div class="card">
       <div class="card-title"><i class="ti ti-activity" aria-hidden="true"></i>Network Trajectory Metrics</div>
       <div class="stat-grid" id="stat-grid"></div>
-      <div class="quarantine-row" style="margin-top:10px;">
+      <div id="trajectory-note" style="font-size:11px;color:var(--muted);line-height:1.6;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);"></div>
+      <div class="quarantine-row" style="margin-top:8px;">
         <div class="q-dot"></div>
         <div class="q-text" id="quarantine-text">—</div>
       </div>
     </div>
 
-    <!-- Counter Signal -->
+    <!-- Action buttons -->
+    <div class="action-row">
+      <button class="action-btn spread-btn" id="spread-btn">
+        <i class="ti ti-rocket" aria-hidden="true"></i>Simulate Spread
+      </button>
+      <button class="action-btn counter-btn" id="counter-narrative-btn">
+        <i class="ti ti-shield-check" aria-hidden="true"></i>Counter-Narrative
+      </button>
+    </div>
+    <button class="action-btn" id="provenance-btn" style="width:100%;justify-content:center;">
+      <i class="ti ti-timeline" aria-hidden="true"></i>Trace Source Provenance
+    </button>
+
+    <!-- Spread Simulation -->
+    <div class="card" id="spread-section">
+      <div class="card-title"><i class="ti ti-rocket" aria-hidden="true"></i>Spread Simulation</div>
+      <div id="spread-loading" class="mini-loading"><div class="mini-spinner"></div>Simulating propagation…</div>
+      <div id="spread-content" style="display:none">
+        <div style="display:flex;gap:14px;margin-bottom:14px;">
+          <div class="stat-cell" style="flex:1">
+            <div class="sc-label">Peak reach</div>
+            <div class="sc-value" id="spread-peak">—</div>
+          </div>
+          <div class="stat-cell" style="flex:1">
+            <div class="sc-label">Containment window</div>
+            <div class="sc-value" id="spread-window">—</div>
+          </div>
+        </div>
+        <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;">Propagation phases</div>
+        <div class="timeline" id="spread-timeline"></div>
+        <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-top:12px;margin-bottom:6px;">Potential super-spreaders</div>
+        <div class="spreader-chips" id="spreader-chips"></div>
+      </div>
+    </div>
+
+    <!-- Counter Narrative -->
+    <div class="card" id="counter-narrative-section">
+      <div class="card-title"><i class="ti ti-shield-check" aria-hidden="true"></i>Counter-Narrative Generator</div>
+      <div id="cn-loading" class="mini-loading"><div class="mini-spinner"></div>Generating rebuttal…</div>
+      <div id="cn-content" style="display:none">
+        <div class="reply-box">
+          <div class="reply-label">Tweet / Reply template</div>
+          <div class="reply-text" id="cn-reply"></div>
+        </div>
+        <div class="reply-box">
+          <div class="reply-label">Extended rebuttal</div>
+          <div class="reply-text" id="cn-extended"></div>
+        </div>
+        <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">Suggested sources</div>
+        <div class="source-list" id="cn-sources"></div>
+        <div class="hashtag-row" id="cn-hashtags"></div>
+        <button class="copy-btn" id="copy-reply-btn">
+          <i class="ti ti-copy" aria-hidden="true"></i>Copy Reply Template
+        </button>
+      </div>
+    </div>
+
+    <!-- Provenance -->
+    <div class="card" id="provenance-section">
+      <div class="card-title"><i class="ti ti-timeline" aria-hidden="true"></i>Source Provenance</div>
+      <div id="prov-loading" class="mini-loading"><div class="mini-spinner"></div>Tracing provenance chain…</div>
+      <div id="prov-content" style="display:none">
+        <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;">Origin platform</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;" id="prov-origin">—</div>
+        <span class="prov-conf" id="prov-conf"></span>
+        <div class="timeline" id="prov-timeline"></div>
+        <div class="prov-note" id="prov-note"></div>
+      </div>
+    </div>
+
+    <!-- Counter Signal (original quick copy) -->
     <div class="card">
-      <div class="card-title"><i class="ti ti-shield-check" aria-hidden="true"></i>Counter Signal</div>
+      <div class="card-title"><i class="ti ti-bolt" aria-hidden="true"></i>Quick Counter-Signal</div>
       <p class="counter-body" id="counter-text"></p>
       <button class="copy-btn" id="copy-btn">
         <i class="ti ti-copy" id="copy-icon" aria-hidden="true"></i>
@@ -294,8 +336,7 @@
       </button>
     </div>
 
-  </div><!-- /#result-state -->
-
+  </div>
 </main>
 <script src="sidepanel.js"></script>
 </body>
