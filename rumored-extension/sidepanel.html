@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RumoRED</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3250;
+      --accent: #e03c3c;
+      --accent2: #ff6b6b;
+      --text: #e8eaf6;
+      --muted: #8b92b8;
+      --green: #4caf82;
+      --yellow: #f5c842;
+      --red: #e03c3c;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 18px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: var(--accent2);
+    }
+
+    .logo span { color: var(--text); }
+
+    .tagline {
+      font-size: 11px;
+      color: var(--muted);
+      margin-left: auto;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Main ── */
+    main { padding: 18px; }
+
+    /* ── Idle state ── */
+    #idle-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      min-height: 70vh;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    #idle-state .idle-icon { font-size: 48px; opacity: 0.5; }
+    #idle-state p { font-size: 13px; line-height: 1.6; max-width: 220px; }
+
+    /* ── Spinner ── */
+    #loading-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      min-height: 70vh;
+    }
+
+    .spinner {
+      width: 52px; height: 52px;
+      border: 4px solid var(--border);
+      border-top-color: var(--accent2);
+      border-radius: 50%;
+      animation: spin 0.85s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text { font-size: 13px; color: var(--muted); }
+
+    /* ── Query pill ── */
+    #query-pill {
+      display: none;
+      align-items: flex-start;
+      gap: 8px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 13px;
+      margin-bottom: 16px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    #query-pill .label {
+      color: var(--accent2);
+      font-weight: 700;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      white-space: nowrap;
+      margin-top: 1px;
+    }
+
+    #query-text {
+      color: var(--text);
+      font-style: italic;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    /* ── Results ── */
+    #result-state { display: none; }
+
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    /* ── Trust Score Gauge ── */
+    .gauge-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .gauge-arc {
+      position: relative;
+      width: 140px;
+      height: 75px;
+      overflow: hidden;
+    }
+
+    .gauge-arc svg { width: 140px; height: 140px; }
+
+    .gauge-label {
+      text-align: center;
+    }
+
+    .gauge-score {
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .gauge-verdict {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-top: 2px;
+    }
+
+    /* ── Triggers ── */
+    .trigger-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .trigger-tag {
+      background: rgba(224, 60, 60, 0.15);
+      border: 1px solid rgba(224, 60, 60, 0.35);
+      color: var(--accent2);
+      border-radius: 20px;
+      padding: 4px 11px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    /* ── Risk Vectors ── */
+    .risk-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .risk-row:last-child { margin-bottom: 0; }
+
+    .risk-label {
+      font-size: 11px;
+      color: var(--muted);
+      width: 80px;
+      flex-shrink: 0;
+      text-transform: capitalize;
+    }
+
+    .risk-bar-bg {
+      flex: 1;
+      height: 8px;
+      background: var(--surface2);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .risk-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.6s ease;
+    }
+
+    .risk-value {
+      font-size: 11px;
+      font-weight: 700;
+      width: 36px;
+      text-align: right;
+    }
+
+    /* ── Counter Signal ── */
+    .counter-text {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .copy-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      width: 100%;
+      padding: 11px;
+      border-radius: 9px;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #e03c3c, #ff6b6b);
+      color: #fff;
+      transition: opacity 0.2s, transform 0.15s;
+      letter-spacing: 0.3px;
+    }
+
+    .copy-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .copy-btn:active { transform: scale(0.98); }
+    .copy-btn.copied { background: linear-gradient(135deg, #2e7d5e, #4caf82); }
+
+    /* ── Error ── */
+    #error-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      min-height: 70vh;
+      text-align: center;
+    }
+
+    .error-icon { font-size: 40px; }
+
+    .error-msg {
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 230px;
+      line-height: 1.6;
+    }
+
+    .retry-btn {
+      margin-top: 6px;
+      padding: 9px 22px;
+      border-radius: 8px;
+      border: 1px solid var(--accent);
+      background: transparent;
+      color: var(--accent2);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .retry-btn:hover { background: rgba(224,60,60,0.12); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">Rumo<span>RED</span></div>
+    <div class="tagline">AI Fact Verification</div>
+  </header>
+
+  <main>
+
+    <!-- Idle -->
+    <div id="idle-state">
+      <div class="idle-icon">🔍</div>
+      <p>Highlight any text on a webpage, right-click, and choose <strong>Verify with RumoRED</strong>.</p>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading-state">
+      <div class="spinner"></div>
+      <div class="loading-text">Analysing claim…</div>
+    </div>
+
+    <!-- Error -->
+    <div id="error-state">
+      <div class="error-icon">⚠️</div>
+      <p class="error-msg" id="error-msg">Could not reach the RumoRED backend. Make sure it is running on port 8000.</p>
+      <button class="retry-btn" id="retry-btn">Retry</button>
+    </div>
+
+    <!-- Results -->
+    <div id="result-state">
+
+      <!-- Query pill -->
+      <div id="query-pill">
+        <span class="label">Claim</span>
+        <span id="query-text"></span>
+      </div>
+
+      <!-- Trust Score -->
+      <div class="section">
+        <div class="section-title">Trust Score</div>
+        <div class="gauge-wrap">
+          <div class="gauge-arc">
+            <svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+              <!-- Background arc -->
+              <path d="M 14 105 A 56 56 0 0 1 126 105"
+                fill="none" stroke="#22263a" stroke-width="14" stroke-linecap="round"/>
+              <!-- Foreground arc -->
+              <path id="gauge-fill" d="M 14 105 A 56 56 0 0 1 126 105"
+                fill="none" stroke="#4caf82" stroke-width="14" stroke-linecap="round"
+                stroke-dasharray="175.9" stroke-dashoffset="175.9"
+                style="transition: stroke-dashoffset 0.8s ease, stroke 0.5s ease;"/>
+            </svg>
+          </div>
+          <div class="gauge-label">
+            <div class="gauge-score" id="gauge-score">—</div>
+            <div class="gauge-verdict" id="gauge-verdict">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Linguistic Triggers -->
+      <div class="section">
+        <div class="section-title">Linguistic Triggers</div>
+        <div class="trigger-list" id="trigger-list"></div>
+      </div>
+
+      <!-- Risk Vectors -->
+      <div class="section">
+        <div class="section-title">Risk Vectors</div>
+        <div id="risk-vectors"></div>
+      </div>
+
+      <!-- Counter Signal -->
+      <div class="section">
+        <div class="section-title">Counter Signal</div>
+        <p class="counter-text" id="counter-text"></p>
+        <button class="copy-btn" id="copy-btn">
+          <span id="copy-icon">📋</span>
+          <span id="copy-label">Copy Counter-Signal</span>
+        </button>
+      </div>
+
+    </div><!-- /#result-state -->
+
+  </main>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>
