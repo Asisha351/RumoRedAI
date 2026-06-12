@@ -1,394 +1,302 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>RumoRED</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
   <style>
     :root {
-      --bg: #0f1117;
-      --surface: #1a1d27;
-      --surface2: #22263a;
-      --border: #2e3250;
+      --bg: #0c0e18;
+      --surface: #13161f;
+      --surface2: #1c2030;
+      --surface3: #222740;
+      --border: rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.12);
       --accent: #e03c3c;
       --accent2: #ff6b6b;
-      --text: #e8eaf6;
-      --muted: #8b92b8;
-      --green: #4caf82;
+      --text: #dde1f5;
+      --muted: #6b728f;
+      --green: #3ecf8e;
       --yellow: #f5c842;
       --red: #e03c3c;
+      --sidebar-width: 420px;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 0;
-    }
+    html, body { width: var(--sidebar-width); min-height: 100vh; background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; }
 
     /* ── Header ── */
     header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 16px 18px;
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 18px;
       background: var(--surface);
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--border2);
+      position: sticky; top: 0; z-index: 10;
     }
-
-    .logo {
-      font-size: 20px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      color: var(--accent2);
-    }
-
+    .logo { font-size: 18px; font-weight: 800; letter-spacing: 1.5px; color: var(--accent2); }
     .logo span { color: var(--text); }
-
-    .tagline {
-      font-size: 11px;
-      color: var(--muted);
+    .badge-live {
       margin-left: auto;
-      letter-spacing: 0.5px;
+      display: flex; align-items: center; gap: 5px;
+      background: rgba(60,207,142,0.1); border: 1px solid rgba(60,207,142,0.25);
+      color: var(--green); border-radius: 20px; padding: 3px 9px; font-size: 10px; font-weight: 600; letter-spacing: 0.5px;
     }
+    .dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: pulse 1.6s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    /* ── Main ── */
-    main { padding: 18px; }
+    main { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
 
-    /* ── Idle state ── */
+    /* ── Idle ── */
     #idle-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      min-height: 70vh;
-      text-align: center;
-      color: var(--muted);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px; min-height: 80vh; text-align: center; color: var(--muted);
     }
-
-    #idle-state .idle-icon { font-size: 48px; opacity: 0.5; }
-    #idle-state p { font-size: 13px; line-height: 1.6; max-width: 220px; }
+    .idle-icon-wrap {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: var(--surface2); border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .idle-icon-wrap i { font-size: 32px; color: var(--muted); }
+    #idle-state h3 { font-size: 15px; font-weight: 600; color: var(--text); }
+    #idle-state p { font-size: 12px; line-height: 1.7; max-width: 260px; }
 
     /* ── Spinner ── */
     #loading-state {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      min-height: 70vh;
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      gap: 20px; min-height: 80vh;
     }
-
-    .spinner {
-      width: 52px; height: 52px;
-      border: 4px solid var(--border);
+    .spinner-ring {
+      width: 56px; height: 56px; border-radius: 50%;
+      border: 3px solid var(--surface3);
       border-top-color: var(--accent2);
-      border-radius: 50%;
-      animation: spin 0.85s linear infinite;
+      animation: spin 0.75s linear infinite;
     }
-
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    .loading-text { font-size: 13px; color: var(--muted); }
-
-    /* ── Query pill ── */
-    #query-pill {
-      display: none;
-      align-items: flex-start;
-      gap: 8px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 13px;
-      margin-bottom: 16px;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    #query-pill .label {
-      color: var(--accent2);
-      font-weight: 700;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      white-space: nowrap;
-      margin-top: 1px;
-    }
-
-    #query-text {
-      color: var(--text);
-      font-style: italic;
-      line-height: 1.5;
-      word-break: break-word;
-    }
-
-    /* ── Results ── */
-    #result-state { display: none; }
-
-    .section {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 15px;
-      margin-bottom: 14px;
-    }
-
-    .section-title {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--muted);
-      margin-bottom: 12px;
-    }
-
-    /* ── Trust Score Gauge ── */
-    .gauge-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .gauge-arc {
-      position: relative;
-      width: 140px;
-      height: 75px;
-      overflow: hidden;
-    }
-
-    .gauge-arc svg { width: 140px; height: 140px; }
-
-    .gauge-label {
-      text-align: center;
-    }
-
-    .gauge-score {
-      font-size: 32px;
-      font-weight: 800;
-      line-height: 1;
-    }
-
-    .gauge-verdict {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-top: 2px;
-    }
-
-    /* ── Triggers ── */
-    .trigger-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 7px;
-    }
-
-    .trigger-tag {
-      background: rgba(224, 60, 60, 0.15);
-      border: 1px solid rgba(224, 60, 60, 0.35);
-      color: var(--accent2);
-      border-radius: 20px;
-      padding: 4px 11px;
-      font-size: 11px;
-      font-weight: 500;
-    }
-
-    /* ── Risk Vectors ── */
-    .risk-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .risk-row:last-child { margin-bottom: 0; }
-
-    .risk-label {
-      font-size: 11px;
-      color: var(--muted);
-      width: 80px;
-      flex-shrink: 0;
-      text-transform: capitalize;
-    }
-
-    .risk-bar-bg {
-      flex: 1;
-      height: 8px;
-      background: var(--surface2);
-      border-radius: 99px;
-      overflow: hidden;
-    }
-
-    .risk-bar-fill {
-      height: 100%;
-      border-radius: 99px;
-      transition: width 0.6s ease;
-    }
-
-    .risk-value {
-      font-size: 11px;
-      font-weight: 700;
-      width: 36px;
-      text-align: right;
-    }
-
-    /* ── Counter Signal ── */
-    .counter-text {
-      font-size: 13px;
-      line-height: 1.6;
-      color: var(--text);
-      margin-bottom: 12px;
-    }
-
-    .copy-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      width: 100%;
-      padding: 11px;
-      border-radius: 9px;
-      border: none;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #e03c3c, #ff6b6b);
-      color: #fff;
-      transition: opacity 0.2s, transform 0.15s;
-      letter-spacing: 0.3px;
-    }
-
-    .copy-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-    .copy-btn:active { transform: scale(0.98); }
-    .copy-btn.copied { background: linear-gradient(135deg, #2e7d5e, #4caf82); }
+    .loading-label { font-size: 12px; color: var(--muted); letter-spacing: 0.5px; }
+    .loading-sub { font-size: 11px; color: var(--muted); opacity: 0.6; }
 
     /* ── Error ── */
     #error-state {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      min-height: 70vh;
-      text-align: center;
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px; min-height: 80vh; text-align: center;
+    }
+    .err-icon { width: 60px; height: 60px; border-radius: 50%; background: rgba(224,60,60,0.12); border: 1px solid rgba(224,60,60,0.25); display: flex; align-items: center; justify-content: center; }
+    .err-icon i { font-size: 28px; color: var(--accent2); }
+    #error-msg { font-size: 12px; color: var(--muted); max-width: 260px; line-height: 1.7; white-space: pre-line; }
+    .retry-btn { padding: 8px 20px; border-radius: 8px; border: 1px solid var(--accent); background: transparent; color: var(--accent2); font-size: 12px; font-weight: 600; cursor: pointer; }
+    .retry-btn:hover { background: rgba(224,60,60,0.1); }
+
+    /* ── Results ── */
+    #result-state { display: none; flex-direction: column; gap: 12px; }
+
+    /* ── Claim pill ── */
+    .claim-pill {
+      display: flex; gap: 10px; align-items: flex-start;
+      background: var(--surface2); border: 1px solid var(--border2);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px; padding: 10px 13px;
+    }
+    .claim-pill .cl-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--accent2); white-space: nowrap; margin-top: 2px; }
+    #query-text { font-size: 12px; color: var(--text); line-height: 1.6; font-style: italic; word-break: break-word; }
+
+    /* ── Section card ── */
+    .card {
+      background: var(--surface); border: 1px solid var(--border2);
+      border-radius: 12px; padding: 15px;
+    }
+    .card-title {
+      font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+      color: var(--muted); margin-bottom: 14px; display: flex; align-items: center; gap: 6px;
+    }
+    .card-title i { font-size: 14px; }
+
+    /* ── Radial gauge ── */
+    .gauge-outer { display: flex; align-items: center; gap: 20px; }
+    .gauge-svg-wrap { position: relative; width: 130px; height: 130px; flex-shrink: 0; }
+    .gauge-svg-wrap svg { width: 130px; height: 130px; }
+    .gauge-center-text {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      text-align: center; pointer-events: none;
+    }
+    .gauge-score-num { font-size: 28px; font-weight: 800; line-height: 1; }
+    .gauge-score-pct { font-size: 11px; color: var(--muted); }
+    .gauge-right { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+    .gauge-verdict-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      border-radius: 6px; padding: 5px 11px; font-size: 11px; font-weight: 700; width: fit-content;
+    }
+    .gauge-meta { font-size: 11px; color: var(--muted); line-height: 1.6; }
+
+    /* credibility bar */
+    .cred-row { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+    .cred-bar-bg { flex: 1; height: 5px; background: var(--surface3); border-radius: 99px; overflow: hidden; }
+    .cred-bar-fill { height: 100%; border-radius: 99px; transition: width 0.9s cubic-bezier(.4,0,.2,1); }
+
+    /* ── Mis-type chip ── */
+    .mistype-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(245,200,66,0.1); border: 1px solid rgba(245,200,66,0.25);
+      color: var(--yellow); border-radius: 6px; padding: 6px 12px;
+      font-size: 11px; font-weight: 600; word-break: break-word;
     }
 
-    .error-icon { font-size: 40px; }
-
-    .error-msg {
-      font-size: 13px;
-      color: var(--muted);
-      max-width: 230px;
-      line-height: 1.6;
+    /* ── Flags list ── */
+    .flag-item {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 7px 0; border-bottom: 1px solid var(--border);
+      font-size: 12px; line-height: 1.5; color: var(--text);
     }
+    .flag-item:last-child { border-bottom: none; }
+    .flag-item i { color: var(--accent2); font-size: 14px; flex-shrink: 0; margin-top: 1px; }
 
-    .retry-btn {
-      margin-top: 6px;
-      padding: 9px 22px;
-      border-radius: 8px;
-      border: 1px solid var(--accent);
-      background: transparent;
-      color: var(--accent2);
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
+    /* ── Stat grid ── */
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .stat-cell {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 9px; padding: 11px 13px;
     }
+    .stat-cell .sc-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 5px; }
+    .stat-cell .sc-value { font-size: 14px; font-weight: 700; }
+    .stat-cell .sc-badge {
+      display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 4px; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .sc-high { color: #ff8080; background: rgba(224,60,60,0.15); }
+    .sc-med  { color: #f5c842; background: rgba(245,200,66,0.12); }
+    .sc-low  { color: var(--green); background: rgba(62,207,142,0.1); }
 
-    .retry-btn:hover { background: rgba(224,60,60,0.12); }
+    /* quarantine status */
+    .quarantine-row {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(62,207,142,0.07); border: 1px solid rgba(62,207,142,0.2);
+      border-radius: 8px; padding: 9px 12px; margin-top: 2px;
+    }
+    .q-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 1.4s infinite; flex-shrink: 0; }
+    .q-text { font-size: 11px; color: var(--green); font-weight: 600; }
+
+    /* ── Counter signal ── */
+    .counter-body { font-size: 13px; line-height: 1.7; color: var(--text); margin-bottom: 12px; }
+    .copy-btn {
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      width: 100%; padding: 11px; border-radius: 9px; border: none; cursor: pointer;
+      font-size: 13px; font-weight: 700;
+      background: linear-gradient(135deg, #c92c2c, #e05050);
+      color: #fff; transition: opacity 0.2s, transform 0.15s; letter-spacing: 0.3px;
+    }
+    .copy-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+    .copy-btn:active { transform: scale(0.98); }
+    .copy-btn.copied { background: linear-gradient(135deg, #1e6e4d, #3ecf8e); }
+    .copy-btn i { font-size: 15px; }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="logo">Rumo<span>RED</span></div>
-    <div class="tagline">AI Fact Verification</div>
-  </header>
+<header>
+  <div class="logo">Rumo<span>RED</span></div>
+  <div class="badge-live">
+    <div class="dot"></div>
+    COMMAND DASHBOARD
+  </div>
+</header>
 
-  <main>
+<main>
 
-    <!-- Idle -->
-    <div id="idle-state">
-      <div class="idle-icon">🔍</div>
-      <p>Highlight any text on a webpage, right-click, and choose <strong>Verify with RumoRED</strong>.</p>
+  <!-- Idle -->
+  <div id="idle-state">
+    <div class="idle-icon-wrap"><i class="ti ti-radar" aria-hidden="true"></i></div>
+    <h3>No claim loaded</h3>
+    <p>Highlight text on any page, right-click, and choose <strong>Verify with RumoRED</strong> to begin analysis.</p>
+  </div>
+
+  <!-- Loading -->
+  <div id="loading-state">
+    <div class="spinner-ring"></div>
+    <div class="loading-label">Scanning claim…</div>
+    <div class="loading-sub">Linguistic analysis in progress</div>
+  </div>
+
+  <!-- Error -->
+  <div id="error-state">
+    <div class="err-icon"><i class="ti ti-wifi-off" aria-hidden="true"></i></div>
+    <p id="error-msg"></p>
+    <button class="retry-btn" id="retry-btn"><i class="ti ti-refresh" aria-hidden="true"></i> Retry</button>
+  </div>
+
+  <!-- Results -->
+  <div id="result-state">
+
+    <!-- Claim pill -->
+    <div class="claim-pill" id="query-pill" style="display:none">
+      <span class="cl-label">Claim</span>
+      <span id="query-text"></span>
     </div>
 
-    <!-- Loading -->
-    <div id="loading-state">
-      <div class="spinner"></div>
-      <div class="loading-text">Analysing claim…</div>
-    </div>
-
-    <!-- Error -->
-    <div id="error-state">
-      <div class="error-icon">⚠️</div>
-      <p class="error-msg" id="error-msg">Could not reach the RumoRED backend. Make sure it is running on port 8000.</p>
-      <button class="retry-btn" id="retry-btn">Retry</button>
-    </div>
-
-    <!-- Results -->
-    <div id="result-state">
-
-      <!-- Query pill -->
-      <div id="query-pill">
-        <span class="label">Claim</span>
-        <span id="query-text"></span>
-      </div>
-
-      <!-- Trust Score -->
-      <div class="section">
-        <div class="section-title">Trust Score</div>
-        <div class="gauge-wrap">
-          <div class="gauge-arc">
-            <svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
-              <!-- Background arc -->
-              <path d="M 14 105 A 56 56 0 0 1 126 105"
-                fill="none" stroke="#22263a" stroke-width="14" stroke-linecap="round"/>
-              <!-- Foreground arc -->
-              <path id="gauge-fill" d="M 14 105 A 56 56 0 0 1 126 105"
-                fill="none" stroke="#4caf82" stroke-width="14" stroke-linecap="round"
-                stroke-dasharray="175.9" stroke-dashoffset="175.9"
-                style="transition: stroke-dashoffset 0.8s ease, stroke 0.5s ease;"/>
-            </svg>
+    <!-- Trust Gauge -->
+    <div class="card">
+      <div class="card-title"><i class="ti ti-gauge" aria-hidden="true"></i>Trust Meter</div>
+      <div class="gauge-outer">
+        <div class="gauge-svg-wrap">
+          <svg viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="65" cy="65" r="52" fill="none" stroke="#1c2030" stroke-width="12"/>
+            <circle id="gauge-ring" cx="65" cy="65" r="52" fill="none" stroke="#3ecf8e" stroke-width="12"
+              stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7"
+              transform="rotate(-90 65 65)"
+              style="transition: stroke-dashoffset 1s cubic-bezier(.4,0,.2,1), stroke 0.6s ease;"/>
+          </svg>
+          <div class="gauge-center-text">
+            <div class="gauge-score-num" id="gauge-score">—</div>
+            <div class="gauge-score-pct">/ 100</div>
           </div>
-          <div class="gauge-label">
-            <div class="gauge-score" id="gauge-score">—</div>
-            <div class="gauge-verdict" id="gauge-verdict">—</div>
+        </div>
+        <div class="gauge-right">
+          <div class="gauge-verdict-badge" id="gauge-verdict-badge">
+            <i class="ti ti-circle-dot" aria-hidden="true"></i>
+            <span id="gauge-verdict-text">—</span>
+          </div>
+          <div class="gauge-meta" id="gauge-meta"></div>
+          <div class="cred-row">
+            <div class="cred-bar-bg"><div class="cred-bar-fill" id="cred-fill" style="width:0%"></div></div>
+            <span id="cred-pct" style="font-size:11px;color:var(--muted);width:32px;text-align:right">0%</span>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Linguistic Triggers -->
-      <div class="section">
-        <div class="section-title">Linguistic Triggers</div>
-        <div class="trigger-list" id="trigger-list"></div>
+    <!-- Credibility Score + Misinfo Type -->
+    <div class="card">
+      <div class="card-title"><i class="ti ti-alert-triangle" aria-hidden="true"></i>Claim Analysis</div>
+      <div style="margin-bottom:12px;">
+        <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;">Misinformation type</div>
+        <div class="mistype-chip"><i class="ti ti-tag" aria-hidden="true"></i><span id="mistype-text">—</span></div>
       </div>
-
-      <!-- Risk Vectors -->
-      <div class="section">
-        <div class="section-title">Risk Vectors</div>
-        <div id="risk-vectors"></div>
+      <div>
+        <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">Key red flags</div>
+        <div id="flags-list"></div>
       </div>
+    </div>
 
-      <!-- Counter Signal -->
-      <div class="section">
-        <div class="section-title">Counter Signal</div>
-        <p class="counter-text" id="counter-text"></p>
-        <button class="copy-btn" id="copy-btn">
-          <span id="copy-icon">📋</span>
-          <span id="copy-label">Copy Counter-Signal</span>
-        </button>
+    <!-- Network Trajectory -->
+    <div class="card">
+      <div class="card-title"><i class="ti ti-activity" aria-hidden="true"></i>Network Trajectory Metrics</div>
+      <div class="stat-grid" id="stat-grid"></div>
+      <div class="quarantine-row" style="margin-top:10px;">
+        <div class="q-dot"></div>
+        <div class="q-text" id="quarantine-text">—</div>
       </div>
+    </div>
 
-    </div><!-- /#result-state -->
+    <!-- Counter Signal -->
+    <div class="card">
+      <div class="card-title"><i class="ti ti-shield-check" aria-hidden="true"></i>Counter Signal</div>
+      <p class="counter-body" id="counter-text"></p>
+      <button class="copy-btn" id="copy-btn">
+        <i class="ti ti-copy" id="copy-icon" aria-hidden="true"></i>
+        <span id="copy-label">Copy Counter-Signal</span>
+      </button>
+    </div>
 
-  </main>
+  </div><!-- /#result-state -->
 
-  <script src="sidepanel.js"></script>
+</main>
+<script src="sidepanel.js"></script>
 </body>
 </html>
